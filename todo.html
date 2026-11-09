@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="外圍透明、自動明暗模式的灰色隨手待辦，資料只存在目前瀏覽器。">
+  <title>隨手待辦</title>
+  <link rel="stylesheet" href="widgets.css">
+  <link rel="stylesheet" href="todo.css">
+</head>
+<body>
+  <main class="card todo" aria-labelledby="todo-title">
+    <header class="todo-heading">
+      <h1 id="todo-title">隨手待辦</h1>
+      <span id="task-count" class="todo-count" aria-live="polite">0 件待辦</span>
+    </header>
+    <form id="add-task" class="add-task" autocomplete="off">
+      <label for="task-input" class="sr-only">新增待辦</label>
+      <input id="task-input" name="task" type="text" placeholder="記下一件想做的事…" maxlength="500" required>
+      <button type="submit" class="add-button">新增</button>
+    </form>
+    <p id="save-status" class="save-status" role="alert" hidden></p>
+    <ul id="task-list" class="task-list" aria-label="待辦項目"></ul>
+    <p id="empty-state" class="empty-state">先記下一件想做的事。</p>
+    <footer class="todo-footer">
+      <span>只存於目前瀏覽器</span>
+      <button id="clear-completed" type="button" disabled>清除已完成</button>
+    </footer>
+  </main>
+  <noscript>請啟用 JavaScript 以使用待辦清單。</noscript>
+  <script type="module" src="todo.mjs"></script>
+</body>
+</html>
