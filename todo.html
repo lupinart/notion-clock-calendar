@@ -4,31 +4,40 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <meta name="description" content="外圍透明、自動明暗模式的灰色隨手待辦，資料只存在目前瀏覽器。">
-  <title>隨手待辦</title>
-  <link rel="stylesheet" href="widgets.css">
-  <link rel="stylesheet" href="todo.css">
+  <meta name="description" content="藍色待辦清單，提供明暗設定、完成勾選與清空確認，資料只存在目前瀏覽器。">
+  <title>Today Tasks</title>
+  <link rel="stylesheet" href="classic-todo.css">
 </head>
 <body>
-  <main class="card todo" aria-labelledby="todo-title">
-    <header class="todo-heading">
-      <h1 id="todo-title">隨手待辦</h1>
-      <span id="task-count" class="todo-count" aria-live="polite">0 件待辦</span>
+  <main class="task-card" aria-labelledby="todo-title">
+    <header class="title-bar">
+      <div class="title-line">
+        <h1 id="todo-title">Today Tasks</h1>
+        <button id="reset" class="reset" type="button" aria-label="Reset all tasks" title="Reset all tasks"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M3 21v-5h5"/></svg></button>
+      </div>
     </header>
-    <form id="add-task" class="add-task" autocomplete="off">
-      <label for="task-input" class="sr-only">新增待辦</label>
-      <input id="task-input" name="task" type="text" placeholder="記下一件想做的事…" maxlength="500" required>
-      <button type="submit" class="add-button">新增</button>
-    </form>
-    <p id="save-status" class="save-status" role="alert" hidden></p>
-    <ul id="task-list" class="task-list" aria-label="待辦項目"></ul>
-    <p id="empty-state" class="empty-state">先記下一件想做的事。</p>
-    <footer class="todo-footer">
-      <span>只存於目前瀏覽器</span>
-      <button id="clear-completed" type="button" disabled>清除已完成</button>
-    </footer>
+    <section class="list-area">
+      <form id="add-task" class="entry" autocomplete="off">
+        <input id="task-input" name="task" type="text" placeholder="add task" aria-label="New task">
+        <button type="submit" class="add">Add</button>
+      </form>
+      <p id="save-status" class="save-status" role="alert" hidden></p>
+      <ul id="task-list" class="tasks" aria-label="Tasks"></ul>
+    </section>
+    <button type="button" id="open-settings" class="handle" aria-label="Settings" aria-expanded="false" aria-controls="settings"></button>
+    <div id="settings-backdrop" class="settings-backdrop" hidden></div>
+    <section id="settings" class="settings" role="dialog" aria-label="Settings" hidden>
+      <div class="settings-title"><span>Settings</span><button type="button" id="close-settings" class="close-settings" aria-label="Close settings"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+      <div class="settings-row"><span>Theme</span><div class="theme-options" role="group" aria-label="Theme">
+        <button type="button" data-theme="light" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2m-15.1-15.1 1.4 1.4m11.4 11.4 1.4 1.4m-14.2 0 1.4-1.4m11.4-11.4 1.4-1.4"/></svg>Light</button>
+        <button type="button" data-theme="dark" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>Dark</button>
+      </div></div>
+    </section>
+    <div id="reset-dialog" class="reset-overlay" role="alertdialog" aria-modal="true" aria-labelledby="reset-title" aria-describedby="reset-description" hidden>
+      <div class="reset-box"><p id="reset-title" class="reset-title">Clear all tasks?</p><p id="reset-description">Every task on this list will be removed.</p><div class="reset-actions"><button type="button" id="keep-tasks">Keep</button><button type="button" id="clear-tasks" class="danger">Clear</button></div></div>
+    </div>
   </main>
   <noscript>請啟用 JavaScript 以使用待辦清單。</noscript>
-  <script type="module" src="todo.mjs"></script>
+  <script type="module" src="classic-todo.mjs"></script>
 </body>
 </html>
