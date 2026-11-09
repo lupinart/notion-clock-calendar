@@ -2,10 +2,8 @@
   /* Primitive values. */
   color-scheme: light dark;
   --gray-50: #f9f8f7;
-  --gray-150: #efeeeb;
   --gray-500: #68665f;
   --gray-800: #383836;
-  --gray-850: #302f2d;
   --gray-950: #35332f;
   --warm-white: #f4f3ef;
   --gray-muted-light: #c5c3bc;
@@ -19,24 +17,17 @@
   --font-number: var(--font-body);
   /* Semantic tokens follow the embedding page, including live theme changes. */
   --surface: var(--gray-50);
-  --surface-header: var(--gray-150);
   --ink: var(--gray-950);
   --ink-muted: var(--gray-500);
-  --outline: #d9d7d2;
   /* Component tokens. The page canvas stays transparent in both themes. */
   --card-bg: var(--surface);
   --card-ink: var(--ink);
-  --header-bg: var(--surface-header);
-  --today-bg: var(--ink);
-  --today-ink: var(--surface);
 }
 @media (prefers-color-scheme: dark) {
   :root {
     --surface: var(--gray-800);
-    --surface-header: var(--gray-850);
     --ink: var(--warm-white);
     --ink-muted: var(--gray-muted-light);
-    --outline: #55534f;
   }
 }
 * { box-sizing: border-box; }
@@ -45,32 +36,15 @@ body { padding: var(--space-2); font: 16px/1.5 var(--font-body); color: var(--ca
 .card { width: 100%; background: var(--card-bg); border-radius: 14px; overflow: hidden; }
 h1, p { margin: 0; }
 h1 { font-family: var(--font-heading); }
-button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; }
-button:focus-visible { outline: 2px solid var(--ink); outline-offset: -4px; }
 .clock { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-6); }
 .place { min-width: 0; }
 .place h1 { font-size: 16px; font-weight: 700; letter-spacing: .08em; }
 .place p { font-size: 12px; color: var(--ink-muted); margin-top: var(--space-1); }
 .clock-time { flex-shrink: 0; font: 500 clamp(28px, 10vw, 48px)/1 var(--font-number); font-variant-numeric: tabular-nums; letter-spacing: -.04em; }
-.calendar-header { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: var(--space-1); padding: var(--space-3) var(--space-2); background: var(--header-bg); }
-.calendar-header h1 { text-align: center; font-size: 16px; font-weight: 700; letter-spacing: .04em; }
-.calendar-header button { min-height: 44px; border: 0; border-radius: 8px; background: transparent; font-size: 28px; line-height: 1; }
-.calendar-header button:hover, .today-button:hover { background: var(--outline); }
-.calendar-body { padding: var(--space-3); }
-table { width: 100%; border-collapse: collapse; table-layout: fixed; text-align: center; font-variant-numeric: tabular-nums; }
-th { padding: var(--space-2) 0; font-size: 10px; font-weight: 600; letter-spacing: .03em; color: var(--ink-muted); }
-td { height: 38px; padding: 1px; font-size: 14px; }
-td time { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; }
-.outside { color: var(--ink-muted); }
-time[aria-current="date"] { background: var(--today-bg); color: var(--today-ink); font-weight: 700; }
-.today-button { display: block; min-height: 36px; margin: var(--space-2) auto 0; padding: var(--space-1) var(--space-3); border: 1px solid var(--outline); border-radius: 999px; background: transparent; font-size: 12px; }
 noscript { display: block; margin-top: var(--space-2); color: var(--ink); }
 @media (max-width: 280px) {
   .clock { padding: var(--space-4); gap: var(--space-2); }
   .clock-time { font-size: 28px; }
   .place h1 { font-size: 14px; }
   .place p { font-size: 10px; }
-  .calendar-body { padding: var(--space-2); }
-  td time { width: 26px; height: 26px; }
-  .calendar-header h1 { font-size: 14px; letter-spacing: 0; }
 }

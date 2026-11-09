@@ -9,16 +9,3 @@ export function taipeiParts(now = new Date()) {
     hour: parts.hour, minute: parts.minute, weekday: parts.weekday };
 }
 
-export function shiftMonth(year, month, delta) {
-  const date = new Date(Date.UTC(year, month - 1 + delta, 1));
-  return { year: date.getUTCFullYear(), month: date.getUTCMonth() + 1 };
-}
-
-export function monthCells(year, month) {
-  const offset = new Date(Date.UTC(year, month - 1, 1)).getUTCDay();
-  return Array.from({ length: 42 }, (_, i) => {
-    const date = new Date(Date.UTC(year, month - 1, 1 - offset + i));
-    return { day: date.getUTCDate(), iso: date.toISOString().slice(0, 10),
-      inMonth: date.getUTCMonth() === month - 1 };
-  });
-}
