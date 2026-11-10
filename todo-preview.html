@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="中性色待辦清單，提供明暗設定、完成勾選與清空確認，資料只存在目前瀏覽器。">
+  <title>Today Tasks</title>
+  <style>
+:root {
+  color-scheme: light dark;
+  font-size: clamp(12px, calc((100vw - 32px) / 20.63), 18px);
+  -webkit-text-size-adjust: 100%;
+  --white: #fff;
+  --blue: #4f91c7;
+  --surface: #f9f8f7;
+  --line: #e4e1db;
+  --field: #fff;
+  --field-line: #e4e1db;
+  --check: #858179;
+  --ink: #37352f;
+  --muted: #706e68;
+  --secondary: #706e68;
+  --selected: #fff;
+  --scrim: rgb(24 24 39 / 28%);
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --card-bg: var(--surface);
+  --card-ink: var(--ink);
+  --header-bg: #f2f1ef;
+  --header-ink: var(--ink);
+  --button-bg: #a9d4f5;
+  --button-ink: #173f5b;
+  --button-border: #5592bf;
+  --button-hover: #94c9ee;
+}
+:root[data-theme="dark"] {
+  --surface: #252525; --line: #383838; --field: #202020; --field-line: #454545;
+  --check: #858580; --ink: #e5e5e2; --muted: #aaa9a4; --secondary: #aaa9a4;
+  --blue: #8bbcdf; --header-bg: #2b2b2b; --button-bg: #82b5da;
+  --button-ink: #142f44; --button-border: #97c9ec; --button-hover: #98c6e7;
+  --selected: #3a3a3a; --scrim: rgb(0 0 0 / 50%);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --surface: #252525; --line: #383838; --field: #202020; --field-line: #454545;
+    --check: #858580; --ink: #e5e5e2; --muted: #aaa9a4; --secondary: #aaa9a4;
+    --blue: #8bbcdf; --header-bg: #2b2b2b; --button-bg: #82b5da;
+    --button-ink: #142f44; --button-border: #97c9ec; --button-hover: #98c6e7;
+    --selected: #3a3a3a; --scrim: rgb(0 0 0 / 50%);
+  }
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: transparent; }
+body { min-height: 100vh; padding: 16px; display: flex; align-items: safe center; justify-content: safe center; font-family: var(--font-body); }
+button { cursor: pointer; }
+:where(button, input):focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+[hidden] { display: none !important; }
+.task-card { position: relative; isolation: isolate; display: flex; flex-direction: column; width: 100%; min-width: 15.625rem; height: calc(100vh - 32px); min-height: min-content; overflow: hidden; border: .0625rem solid var(--line); border-radius: 1rem; background: var(--card-bg); color: var(--card-ink); }
+.title-bar { flex-shrink: 0; padding: .75rem 1rem; background: var(--header-bg); border-bottom: .0625rem solid var(--line); }
+.title-line { display: flex; justify-content: center; align-items: center; gap: .375rem; }
+.title-line h1 { color: var(--header-ink); font-size: 1.125rem; font-weight: 600; letter-spacing: .01em; text-align: center; }
+.reset { display: grid; place-items: center; width: 1.875rem; height: 1.875rem; border: 0; border-radius: 50%; color: var(--secondary); background: transparent; opacity: .85; }
+.reset:hover { opacity: 1; background: rgb(255 255 255 / 16%); }
+.list-area { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: .75rem; padding: .875rem .875rem 1.25rem; }
+.entry { display: flex; align-items: center; gap: .5rem; flex-shrink: 0; }
+.entry input { flex: 1; min-width: 0; height: 2rem; padding: 0 .875rem; border: 0; border-radius: .5rem; background: var(--field); box-shadow: inset 0 0 0 .0625rem var(--field-line); color: var(--ink); font: .8125rem var(--font-body); outline: none; }
+.entry input::placeholder { color: var(--muted); opacity: 1; }
+.entry input:focus { box-shadow: inset 0 0 0 .125rem var(--blue); }
+.add { flex-shrink: 0; height: 2rem; padding: 0 .875rem; border: .0625rem solid var(--button-border); border-radius: .5rem; background: var(--button-bg); color: var(--button-ink); font: 600 .8125rem var(--font-body); box-shadow: 0 .0625rem .125rem rgb(0 0 0 / 12%); }
+.add:hover { background: var(--button-hover); }
+.add:active { box-shadow: none; transform: translateY(1px); }
+.tasks { list-style: none; flex: 1; min-height: 0; overflow-y: auto; }
+.tasks::-webkit-scrollbar { width: .25rem; }
+.tasks::-webkit-scrollbar-thumb { background: var(--field-line); border-radius: .1875rem; }
+.task { position: relative; display: flex; align-items: center; gap: .625rem; padding: .5625rem 1.625rem .5625rem 0; border-bottom: .0625rem solid var(--line); }
+.task:last-child { border: 0; }
+.check { position: relative; display: grid; place-items: center; flex-shrink: 0; width: 1.25rem; height: 1.25rem; border: .1875rem solid var(--check); border-radius: 50%; background: transparent; }
+.check[aria-pressed="true"] { border-color: var(--blue); }
+.check[aria-pressed="true"]::after { content: ""; position: absolute; inset: 0; border: .125rem solid var(--surface); border-radius: inherit; background: var(--blue); }
+.task-text { flex: 1; min-width: 0; min-height: 1.25rem; display: flex; align-items: center; font-size: .8125rem; line-height: 1.3; overflow-wrap: break-word; word-break: break-word; hyphens: auto; }
+.task.completed .task-text { color: var(--muted); text-decoration: line-through; }
+.delete { position: absolute; right: 0; top: 50%; transform: translateY(-50%); display: grid; place-items: center; padding: .25rem; border: 0; border-radius: .375rem; background: transparent; color: var(--muted); opacity: .55; }
+.delete:hover, .task:hover .delete { opacity: 1; color: var(--blue); }
+.handle { position: absolute; z-index: 5; left: 50%; bottom: .375rem; transform: translateX(-50%); display: grid; place-items: center; width: 4rem; height: .75rem; border: 0; background: transparent; color: var(--muted); opacity: .7; touch-action: none; }
+.handle::before { content: ""; width: 2rem; height: .25rem; border-radius: 999px; background: currentColor; }
+.handle:hover, .handle:focus-visible { opacity: 1; color: var(--ink); }
+.settings-backdrop { position: absolute; z-index: 6; inset: 0; background: var(--scrim); border-radius: inherit; }
+.settings { position: absolute; z-index: 7; left: 0; right: 0; bottom: 0; display: grid; gap: .375rem; max-height: 100%; overflow: auto; padding: .5rem .75rem .75rem; border-top: .0625rem solid var(--line); border-radius: .875rem .875rem .9375rem .9375rem; background: var(--surface); color: var(--ink); }
+.settings-title { display: flex; align-items: center; justify-content: space-between; gap: .5rem; min-height: 1.25rem; font-size: .75rem; font-weight: 700; }
+.close-settings { display: grid; place-items: center; width: 1.25rem; height: 1.25rem; border: 0; border-radius: 999px; background: transparent; color: var(--muted); }
+.close-settings:hover { color: var(--ink); background: var(--field); }
+.settings-row { display: flex; align-items: center; justify-content: space-between; gap: .5rem; min-height: 1.75rem; font-size: .75rem; font-weight: 600; }
+.theme-options { display: inline-flex; gap: .125rem; padding: .125rem; border-radius: .5rem; background: var(--field); box-shadow: inset 0 0 0 .0625rem var(--field-line); }
+.theme-options button { display: inline-flex; align-items: center; gap: .25rem; min-height: 1.375rem; padding: 0 .5rem; border: 0; border-radius: .375rem; background: transparent; color: var(--secondary); font: 600 .6875rem var(--font-body); }
+.theme-options svg { width: .75rem; height: .75rem; }
+.theme-options [aria-pressed="true"] { color: var(--ink); background: var(--selected); box-shadow: 0 .0625rem .125rem rgb(0 0 0 / 8%); }
+.reset-overlay { position: absolute; z-index: 9; inset: 0; display: grid; place-items: center; padding: 1rem; border-radius: inherit; background: var(--scrim); }
+.reset-box { width: 100%; max-width: 14rem; padding: .875rem; border-radius: .875rem; background: var(--surface); color: var(--ink); box-shadow: 0 .5rem 1.5rem rgb(0 0 0 / 18%); }
+.reset-title { margin-bottom: .25rem; font-size: .875rem; font-weight: 600; }
+#reset-description { margin-bottom: .75rem; color: var(--secondary); font-size: .75rem; line-height: 1.35; }
+.reset-actions { display: flex; gap: .5rem; }
+.reset-actions button { flex: 1; min-height: 1.875rem; border: .0625rem solid var(--field-line); border-radius: .5rem; background: transparent; color: var(--ink); font: 600 .75rem var(--font-body); }
+.reset-actions .danger { border-color: #ef4444; background: #ef4444; color: var(--white); }
+.save-status, noscript { font-size: .75rem; line-height: 1.35; color: var(--ink); }
+button:disabled { cursor: default; }
+
+</style>
+</head>
+<body>
+  <main class="task-card" aria-labelledby="todo-title">
+    <header class="title-bar">
+      <div class="title-line">
+        <h1 id="todo-title">Today Tasks</h1>
+        <button id="reset" class="reset" type="button" aria-label="Reset all tasks" title="Reset all tasks"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M3 21v-5h5"/></svg></button>
+      </div>
+    </header>
+    <section class="list-area">
+      <form id="add-task" class="entry" autocomplete="off">
+        <input id="task-input" name="task" type="text" placeholder="add task" aria-label="New task">
+        <button type="submit" class="add">Add</button>
+      </form>
+      <p id="save-status" class="save-status" role="alert" hidden></p>
+      <ul id="task-list" class="tasks" aria-label="Tasks"></ul>
+    </section>
+    <button type="button" id="open-settings" class="handle" aria-label="Settings" aria-expanded="false" aria-controls="settings"></button>
+    <div id="settings-backdrop" class="settings-backdrop" hidden></div>
+    <section id="settings" class="settings" role="dialog" aria-label="Settings" hidden>
+      <div class="settings-title"><span>Settings</span><button type="button" id="close-settings" class="close-settings" aria-label="Close settings"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+      <div class="settings-row"><span>Theme</span><div class="theme-options" role="group" aria-label="Theme">
+        <button type="button" data-theme="light" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2m-15.1-15.1 1.4 1.4m11.4 11.4 1.4 1.4m-14.2 0 1.4-1.4m11.4-11.4 1.4-1.4"/></svg>Light</button>
+        <button type="button" data-theme="dark" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>Dark</button>
+      </div></div>
+    </section>
+    <div id="reset-dialog" class="reset-overlay" role="alertdialog" aria-modal="true" aria-labelledby="reset-title" aria-describedby="reset-description" hidden>
+      <div class="reset-box"><p id="reset-title" class="reset-title">Clear all tasks?</p><p id="reset-description">Every task on this list will be removed.</p><div class="reset-actions"><button type="button" id="keep-tasks">Keep</button><button type="button" id="clear-tasks" class="danger">Clear</button></div></div>
+    </div>
+  </main>
+  <noscript>請啟用 JavaScript 以使用待辦清單。</noscript>
+  <script>
+(()=>{
+const STORAGE_KEY = 'lupin.todo.preview.v1';
+
+function validate(tasks) {
+  if (!Array.isArray(tasks) || tasks.some(task => !task ||
+    typeof task.id !== 'string' || !/^[a-zA-Z0-9-]{1,80}$/.test(task.id) ||
+    typeof task.text !== 'string' || !task.text.trim() ||
+    typeof task.completed !== 'boolean') || new Set(tasks.map(task => task.id)).size !== tasks.length) {
+    throw new TypeError('Invalid saved tasks');
+  }
+  return tasks;
+}
+
+function readTasks(storage) {
+  const raw = storage.getItem(STORAGE_KEY);
+  return raw === null ? [] : validate(JSON.parse(raw));
+}
+
+function writeTasks(storage, tasks) {
+  storage.setItem(STORAGE_KEY, JSON.stringify(validate(tasks)));
+}
+
+
+
+const form = document.querySelector('#add-task');
+const input = document.querySelector('#task-input');
+const list = document.querySelector('#task-list');
+const status = document.querySelector('#save-status');
+const card = document.querySelector('.task-card');
+const settings = document.querySelector('#settings');
+const backdrop = document.querySelector('#settings-backdrop');
+const handle = document.querySelector('#open-settings');
+const confirm = document.querySelector('#reset-dialog');
+const themeKey = 'lupin.todo.preview.theme.v1';
+let tasks = [];
+let storage;
+let ready = true;
+
+function error(message) { status.textContent = message; status.hidden = false; }
+function pauseEditing() {
+  ready = false;
+  for (const element of form.elements) element.disabled = true;
+}
+function render() {
+  const focus = document.activeElement?.dataset.focus;
+  const fragment = document.createDocumentFragment();
+  for (const task of tasks) {
+    const row = document.createElement('li');
+    row.className = `task${task.completed ? ' completed' : ''}`;
+    const check = document.createElement('button');
+    check.type = 'button';
+    check.className = 'check';
+    check.dataset.focus = `check-${task.id}`;
+    check.setAttribute('aria-label', task.completed ? 'Mark as not done' : 'Mark as done');
+    check.setAttribute('aria-pressed', String(task.completed));
+    check.disabled = !ready;
+    check.addEventListener('click', () => commit(tasks.map(t => t.id === task.id ? { ...t, completed: !t.completed } : t)));
+    const text = document.createElement('span');
+    text.className = 'task-text';
+    text.textContent = task.text;
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'delete';
+    remove.dataset.focus = `delete-${task.id}`;
+    remove.setAttribute('aria-label', 'Delete this task');
+    remove.title = 'Delete this task';
+    remove.disabled = !ready;
+    remove.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+    remove.addEventListener('click', () => commit(tasks.filter(t => t.id !== task.id)));
+    row.append(check, text, remove);
+    fragment.append(row);
+  }
+  list.replaceChildren(fragment);
+  if (focus) (list.querySelector(`[data-focus="${focus}"]`) || input).focus();
+}
+function commit(next) {
+  if (!ready) return false;
+  try {
+    const latest = readTasks(storage);
+    if (JSON.stringify(latest) !== JSON.stringify(tasks)) {
+      tasks = latest;
+      render();
+      error('另一個分頁已更新清單，已載入最新內容。輸入仍保留，請再試一次。');
+      return false;
+    }
+    writeTasks(storage, next);
+  } catch {
+    error('這次變更無法保存，原有待辦及輸入仍保留。請確認瀏覽器允許儲存網站資料。');
+    return false;
+  }
+  tasks = next;
+  status.hidden = true;
+  render();
+  return true;
+}
+function inertBackground(value) {
+  document.querySelector('.title-bar').inert = value;
+  document.querySelector('.list-area').inert = value;
+}
+function closeSettings() {
+  settings.hidden = true;
+  backdrop.hidden = true;
+  handle.setAttribute('aria-expanded', 'false');
+  inertBackground(false);
+  handle.focus({ preventScroll: true });
+}
+function openSettings() {
+  if (!confirm.hidden) return;
+  settings.hidden = false;
+  backdrop.hidden = false;
+  handle.setAttribute('aria-expanded', 'true');
+  inertBackground(true);
+  document.querySelector('#close-settings').focus({ preventScroll: true });
+}
+function closeConfirm() {
+  confirm.hidden = true;
+  inertBackground(false);
+  document.querySelector('#reset').focus({ preventScroll: true });
+}
+function syncThemeButtons() {
+  const dark = document.documentElement.dataset.theme
+    ? document.documentElement.dataset.theme === 'dark'
+    : matchMedia('(prefers-color-scheme: dark)').matches;
+  for (const button of settings.querySelectorAll('[data-theme]')) {
+    button.setAttribute('aria-pressed', String((button.dataset.theme === 'dark') === dark));
+  }
+}
+
+form.addEventListener('submit', event => {
+  event.preventDefault();
+  const text = input.value.trim();
+  if (text && commit([...tasks, { id: crypto.randomUUID(), text, completed: false }])) {
+    input.value = '';
+  }
+});
+handle.addEventListener('click', () => settings.hidden ? openSettings() : closeSettings());
+document.querySelector('#close-settings').addEventListener('click', closeSettings);
+backdrop.addEventListener('click', closeSettings);
+document.querySelector('#reset').addEventListener('click', () => {
+  if (!ready || !tasks.length) return;
+  confirm.hidden = false;
+  inertBackground(true);
+  document.querySelector('#keep-tasks').focus({ preventScroll: true });
+});
+document.querySelector('#keep-tasks').addEventListener('click', closeConfirm);
+document.querySelector('#clear-tasks').addEventListener('click', () => { if (commit([])) closeConfirm(); });
+confirm.addEventListener('click', event => { if (event.target === confirm) closeConfirm(); });
+for (const button of settings.querySelectorAll('[data-theme]')) {
+  button.addEventListener('click', () => {
+    document.documentElement.dataset.theme = button.dataset.theme;
+    syncThemeButtons();
+    try { storage.setItem(themeKey, button.dataset.theme); }
+    catch { error('主題已套用，但無法保存到瀏覽器。'); }
+  });
+}
+document.addEventListener('keydown', event => {
+  const dialog = !confirm.hidden ? confirm : !settings.hidden ? settings : null;
+  if (!dialog) return;
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    confirm.hidden ? closeSettings() : closeConfirm();
+  } else if (event.key === 'Tab') {
+    const buttons = [...dialog.querySelectorAll('button:not(:disabled)')];
+    const first = buttons[0], last = buttons.at(-1);
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+  }
+});
+let swipeStart = null;
+card.addEventListener('pointerdown', event => {
+  if (event.pointerType === 'mouse' || event.target.closest('input,button,.settings,.reset-overlay')) return;
+  swipeStart = event.clientY;
+});
+card.addEventListener('pointermove', event => {
+  if (swipeStart !== null && swipeStart - event.clientY > 24) { swipeStart = null; openSettings(); }
+});
+for (const type of ['pointerup', 'pointercancel']) card.addEventListener(type, () => { swipeStart = null; });
+
+try {
+  storage = window.localStorage;
+  tasks = readTasks(storage);
+  const probe = `${STORAGE_KEY}.probe`;
+  storage.setItem(probe, '1');
+  storage.removeItem(probe);
+} catch {
+  pauseEditing();
+  error('無法讀取或保存待辦，已暫停編輯，原有資料不會被覆寫。請確認瀏覽器允許網站儲存。');
+}
+try {
+  const saved = storage?.getItem(themeKey);
+  if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved;
+} catch {}
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncThemeButtons);
+syncThemeButtons();
+render();
+window.addEventListener('storage', event => {
+  if (event.storageArea !== storage) return;
+  if (event.key === themeKey || event.key === null) {
+    const selected = event.newValue;
+    if (selected === 'light' || selected === 'dark') document.documentElement.dataset.theme = selected;
+    else delete document.documentElement.dataset.theme;
+    syncThemeButtons();
+  }
+  if (!ready || (event.key !== STORAGE_KEY && event.key !== null)) return;
+  try { tasks = readTasks(storage); render(); }
+  catch {
+    pauseEditing(); render();
+    error('其他分頁的資料無法讀取，已保留目前畫面並暫停編輯。');
+  }
+});
+
+})();
+</script>
+</body>
+</html>
