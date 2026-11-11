@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <meta name="description" content="中性色待辦清單，提供明暗設定、完成勾選與清空確認，資料只存在目前瀏覽器。">
-  <meta name="widget-version" content="20261111-5">
+  <meta name="widget-version" content="20261111-6">
   <title>Today Tasks</title>
   <style>
 :root {
@@ -56,7 +56,7 @@ body { min-height: 100vh; padding: 16px; display: flex; align-items: safe center
 button { cursor: pointer; }
 :where(button, input):focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
 [hidden] { display: none !important; }
-.task-card { position: relative; isolation: isolate; display: flex; flex-direction: column; width: 100%; min-width: 0; height: calc(100vh - 32px); min-height: min-content; overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: var(--card-bg); color: var(--card-ink); }
+.task-card { position: relative; isolation: isolate; display: flex; flex-direction: column; width: 100%; min-width: 0; height: calc(100vh - 32px); min-height: min-content; overflow: hidden; border: 1px solid var(--line); border-radius: 10px; background: var(--card-bg); color: var(--card-ink); }
 .title-bar { flex-shrink: 0; padding: .75rem 1rem; background: var(--header-bg); border-bottom: .0625rem solid var(--line); }
 .title-line { display: flex; justify-content: center; align-items: center; gap: .375rem; }
 .title-line h1 { color: var(--header-ink); font-size: 1.125rem; font-weight: 600; letter-spacing: .01em; text-align: center; }
