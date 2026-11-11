@@ -2,17 +2,18 @@
   /* Primitive values. */
   color-scheme: light dark;
   --gray-50: #f9f8f7;
-  --gray-500: #68665f;
-  --gray-800: #383836;
-  --gray-950: #35332f;
-  --warm-white: #f4f3ef;
-  --gray-muted-light: #c5c3bc;
+  --gray-500: #706e68;
+  --gray-800: #252525;
+  --gray-950: #37352f;
+  --warm-white: #e5e5e2;
+  --gray-muted-light: #aaa9a4;
+  --line: #e4e1db;
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
   --space-6: 24px;
-  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-heading: var(--font-body);
   --font-number: var(--font-body);
   /* Semantic tokens follow the embedding page, including live theme changes. */
@@ -28,12 +29,13 @@
     --surface: var(--gray-800);
     --ink: var(--warm-white);
     --ink-muted: var(--gray-muted-light);
+    --line: #383838;
   }
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: transparent; min-width: 0; }
 body { padding: var(--space-4); font: 16px/1.5 var(--font-body); color: var(--card-ink); }
-.card { width: 100%; background: var(--card-bg); border-radius: 16px; overflow: hidden; }
+.card { width: min(100%, 320px); margin-inline: auto; background: var(--card-bg); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
 h1, p { margin: 0; }
 h1 { font-family: var(--font-heading); }
 .clock { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-6); }
