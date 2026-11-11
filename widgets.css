@@ -32,8 +32,8 @@
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: transparent; min-width: 0; }
-body { padding: var(--space-2); font: 16px/1.5 var(--font-body); color: var(--card-ink); }
-.card { width: 100%; background: var(--card-bg); border-radius: 14px; overflow: hidden; }
+body { padding: var(--space-4); font: 16px/1.5 var(--font-body); color: var(--card-ink); }
+.card { width: 100%; background: var(--card-bg); border-radius: 16px; overflow: hidden; }
 h1, p { margin: 0; }
 h1 { font-family: var(--font-heading); }
 .clock { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-6); }
